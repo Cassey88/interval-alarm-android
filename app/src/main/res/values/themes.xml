@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.IntervalAlarm" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/ms_blue</item>
+        <item name="colorPrimaryDark">@color/ms_blue_dark</item>
+        <item name="colorAccent">@color/ms_blue</item>
+        <item name="android:windowBackground">@color/ms_bg</item>
+        <item name="android:statusBarColor">@color/ms_bg</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:textColorPrimary">@color/ms_text</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+</resources>

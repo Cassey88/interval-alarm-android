@@ -5,65 +5,128 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/fromBtn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="From 09:00" />
-
-        <Button
-            android:id="@+id/toBtn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="To 12:00" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="4dp">
-
-        <Spinner
-            android:id="@+id/intervalSpin"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-
-        <Spinner
-            android:id="@+id/soundSpin"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/startBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Start alarms" />
-
     <TextView
-        android:id="@+id/statusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Interval Alarm"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="@color/ms_text"
+        android:paddingBottom="14dp" />
+
+    <!-- settings card -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:paddingTop="6dp"
-        android:paddingBottom="6dp"
-        android:textSize="13sp" />
+        android:orientation="vertical"
+        android:background="@drawable/bg_card"
+        android:padding="14dp">
 
-    <ListView
-        android:id="@+id/listView"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/fromBtn"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="5dp"
+                android:background="@drawable/btn_outline"
+                android:textColor="@color/ms_text"
+                android:textAllCaps="false"
+                android:textSize="15sp"
+                android:text="From 09:00" />
+
+            <Button
+                android:id="@+id/toBtn"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:layout_marginStart="5dp"
+                android:background="@drawable/btn_outline"
+                android:textColor="@color/ms_text"
+                android:textAllCaps="false"
+                android:textSize="15sp"
+                android:text="To 12:00" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp">
+
+            <Spinner
+                android:id="@+id/intervalSpin"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="5dp"
+                android:background="@drawable/btn_outline"
+                android:paddingStart="12dp" />
+
+            <Spinner
+                android:id="@+id/soundSpin"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:layout_marginStart="5dp"
+                android:background="@drawable/btn_outline"
+                android:paddingStart="12dp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/startBtn"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/btn_primary"
+            android:textColor="#FFFFFF"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:text="Start alarms" />
+
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="8dp"
+            android:textSize="13sp"
+            android:textColor="@color/ms_text_secondary" />
+    </LinearLayout>
+
+    <!-- schedule card -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:layout_marginTop="14dp"
+        android:orientation="vertical"
+        android:background="@drawable/bg_card"
+        android:padding="14dp">
+
+        <TextView
+            android:id="@+id/scheduleTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Schedule"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/ms_text_secondary"
+            android:letterSpacing="0.08"
+            android:textAllCaps="true"
+            android:paddingBottom="6dp" />
+
+        <ListView
+            android:id="@+id/listView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@color/ms_divider"
+            android:dividerHeight="1dp" />
+    </LinearLayout>
 
 </LinearLayout>

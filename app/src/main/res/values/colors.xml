@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_bg">#F8F6F7</color>
+    <color name="ms_blue">#0078D4</color>
+    <color name="ms_blue_dark">#106EBE</color>
+    <color name="ms_bg">#F3F3F3</color>
+    <color name="ms_card">#FFFFFF</color>
+    <color name="ms_text">#201F1E</color>
+    <color name="ms_text_secondary">#605E5C</color>
+    <color name="ms_border">#8A8886</color>
+    <color name="ms_green">#107C10</color>
+    <color name="ms_red">#D83B01</color>
+    <color name="ms_divider">#EDEBE9</color>
+</resources>

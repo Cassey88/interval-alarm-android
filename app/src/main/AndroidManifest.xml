@@ -8,8 +8,9 @@
 
     <application
         android:label="Interval Alarm"
-        android:icon="@android:drawable/ic_lock_idle_alarm"
-        android:theme="@style/Theme.AppCompat.DayNight"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:theme="@style/Theme.IntervalAlarm"
         android:allowBackup="true">
 
         <activity

@@ -119,11 +119,70 @@ class MainActivity : AppCompatActivity() {
     private fun updateButtonState() {
         val running = prefs.getBoolean("running", false)
         startBtn.text = if (running) "Stop alarms" else "Start alarms"
+        startBtn.setBackgroundResource(if (running) R.drawable.btn_danger else R.drawable.btn_primary)
         fromBtn.isEnabled = !running
         toBtn.isEnabled = !running
         intervalSpin.isEnabled = !running
         soundSpin.isEnabled = !running
-        statusText.text = if (running) "Running — alarms will fire even with the screen off" else ""
+        statusText.text = if (running) "Running — alarms fire even with the screen off" else ""
+    }
+
+    private data class Row(val mark: String, val time: String, val note: String, val color: Int, val dim: Boolean)
+
+    private inner class SlotAdapter(val rows: List<Row>) :
+        ArrayAdapter<Row>(this, R.layout.row_slot, rows) {
+        override fun getView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View {
+            val v = convertView ?: layoutInflater.inflate(R.layout.row_slot, parent, false)
+            val r = rows[position]
+            val mark = v.findViewById<TextView>(R.id.rowMark)
+            val time = v.findViewById<TextView>(R.id.rowTime)
+            val note = v.findViewById<TextView>(R.id.rowNote)
+            mark.text = r.mark; mark.setTextColor(r.color)
+            time.text = r.time
+            time.setTextColor(if (r.dim) getColor(R.color.ms_text_secondary) else getColor(R.color.ms_text))
+            time.paintFlags = if (r.dim)
+                time.paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
+            else
+                time.paintFlags and android.graphics.Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            note.text = r.note; note.setTextColor(r.color)
+            return v
+        }
+    }
+
+    private fun refreshList() {
+        val slots = prefs.getString("slots", "") ?: ""
+        val titleView = findViewById<TextView>(R.id.scheduleTitle)
+        if (slots.isEmpty()) {
+            titleView.text = "Schedule"
+            listView.adapter = SlotAdapter(listOf(Row("", "No alarms set", "", getColor(R.color.ms_text_secondary), false)))
+            return
+        }
+        val running = prefs.getBoolean("running", false)
+        val now = Calendar.getInstance()
+        val nowMin = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
+
+        var done = 0
+        var nextMarked = false
+        val rows = slots.split(",").map { entry ->
+            val parts = entry.split(":")
+            val minute = parts[0].toInt()
+            var state = parts[1]
+            if (state == "pending" && nowMin > minute + 3) state = "missed"
+            if (state == "done") done++
+            val label = String.format(Locale.US, "%02d:%02d", minute / 60, minute % 60)
+            when (state) {
+                "done" -> Row("✓", label, "rang", getColor(R.color.ms_green), false)
+                "missed" -> Row("–", label, "missed", getColor(R.color.ms_text_secondary), true)
+                else -> {
+                    val isNext = running && !nextMarked
+                    if (isNext) nextMarked = true
+                    if (isNext) Row("●", label, "next", getColor(R.color.ms_blue), false)
+                    else Row("○", label, if (running) "" else "not started", getColor(R.color.ms_border), false)
+                }
+            }
+        }
+        titleView.text = "Schedule   —   $done / ${rows.size} rang"
+        listView.adapter = SlotAdapter(rows)
     }
 
     private fun startAlarms() {
@@ -203,34 +262,6 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun refreshList() {
-        val slots = prefs.getString("slots", "") ?: ""
-        if (slots.isEmpty()) {
-            listView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, listOf("No alarms set"))
-            return
-        }
-        val running = prefs.getBoolean("running", false)
-        val now = Calendar.getInstance()
-        val nowMin = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
-
-        var done = 0
-        val rows = slots.split(",").map { entry ->
-            val parts = entry.split(":")
-            val minute = parts[0].toInt()
-            var state = parts[1]
-            // safety net: pending slot more than 3 min past and never delivered
-            if (state == "pending" && nowMin > minute + 3) state = "missed"
-            if (state == "done") done++
-            val label = String.format(Locale.US, "%02d:%02d", minute / 60, minute % 60)
-            when (state) {
-                "done" -> "✓  $label   — rang"
-                "missed" -> "–  $label   — missed"
-                else -> if (running) "○  $label" else "○  $label   (not started)"
-            }
-        }
-        val title = "Schedule   $done / ${slots.split(",").size} rang"
-        listView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, listOf(title) + rows)
-    }
 
     private fun createChannels() {
         val nm = getSystemService(NotificationManager::class.java)
