@@ -27,29 +27,75 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <Button
+            <LinearLayout
                 android:id="@+id/fromBtn"
                 android:layout_width="0dp"
-                android:layout_height="44dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginEnd="5dp"
-                android:background="@drawable/btn_outline"
-                android:textColor="@color/ms_text"
-                android:textAllCaps="false"
-                android:textSize="15sp"
-                android:text="From 09:00" />
+                android:orientation="vertical"
+                android:background="@drawable/btn_tile"
+                android:elevation="1dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:paddingTop="9dp"
+                android:paddingBottom="9dp">
 
-            <Button
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="FROM"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.12"
+                    android:textColor="@color/ms_text_secondary" />
+
+                <TextView
+                    android:id="@+id/fromVal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="09:00"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/ms_blue" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/toBtn"
                 android:layout_width="0dp"
-                android:layout_height="44dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="5dp"
-                android:background="@drawable/btn_outline"
-                android:textColor="@color/ms_text"
-                android:textAllCaps="false"
-                android:textSize="15sp"
-                android:text="To 12:00" />
+                android:orientation="vertical"
+                android:background="@drawable/btn_tile"
+                android:elevation="1dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:paddingTop="9dp"
+                android:paddingBottom="9dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TO"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.12"
+                    android:textColor="@color/ms_text_secondary" />
+
+                <TextView
+                    android:id="@+id/toVal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="12:00"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/ms_blue" />
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout

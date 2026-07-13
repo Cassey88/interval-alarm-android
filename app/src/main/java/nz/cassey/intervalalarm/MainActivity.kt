@@ -10,8 +10,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.media.AudioAttributes
-import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -31,8 +29,10 @@ import java.util.Locale
 class MainActivity : AppCompatActivity() {
 
     private lateinit var prefs: SharedPreferences
-    private lateinit var fromBtn: Button
-    private lateinit var toBtn: Button
+    private lateinit var fromBtn: android.view.View
+    private lateinit var toBtn: android.view.View
+    private lateinit var fromVal: TextView
+    private lateinit var toVal: TextView
     private lateinit var intervalSpin: Spinner
     private lateinit var soundSpin: Spinner
     private lateinit var startBtn: Button
@@ -57,6 +57,8 @@ class MainActivity : AppCompatActivity() {
 
         fromBtn = findViewById(R.id.fromBtn)
         toBtn = findViewById(R.id.toBtn)
+        fromVal = findViewById(R.id.fromVal)
+        toVal = findViewById(R.id.toVal)
         intervalSpin = findViewById(R.id.intervalSpin)
         soundSpin = findViewById(R.id.soundSpin)
         startBtn = findViewById(R.id.startBtn)
@@ -112,8 +114,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateTimeButtons() {
-        fromBtn.text = String.format(Locale.US, "From %02d:%02d", fromH, fromM)
-        toBtn.text = String.format(Locale.US, "To %02d:%02d", toH, toM)
+        fromVal.text = String.format(Locale.US, "%02d:%02d", fromH, fromM)
+        toVal.text = String.format(Locale.US, "%02d:%02d", toH, toM)
     }
 
     private fun updateButtonState() {
@@ -122,6 +124,8 @@ class MainActivity : AppCompatActivity() {
         startBtn.setBackgroundResource(if (running) R.drawable.btn_danger else R.drawable.btn_primary)
         fromBtn.isEnabled = !running
         toBtn.isEnabled = !running
+        fromBtn.alpha = if (running) 0.45f else 1f
+        toBtn.alpha = if (running) 0.45f else 1f
         intervalSpin.isEnabled = !running
         soundSpin.isEnabled = !running
         statusText.text = if (running) "Running — alarms fire even with the screen off" else ""
@@ -265,23 +269,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun createChannels() {
         val nm = getSystemService(NotificationManager::class.java)
-        fun channel(id: String, name: String, sound: Uri?) {
-            val c = NotificationChannel(id, name, NotificationManager.IMPORTANCE_HIGH)
-            c.enableVibration(true)
-            c.vibrationPattern = longArrayOf(0, 500, 250, 500, 250, 500)
-            if (sound != null) {
-                c.setSound(
-                    sound,
-                    AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_ALARM)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .build()
-                )
-            }
-            nm.createNotificationChannel(c)
-        }
-        channel("alarm", "Alarm sound", RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
-        channel("ringtone", "Ringtone sound", RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE))
-        channel("notification", "Notification sound", RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+        val c = NotificationChannel(
+            AlarmRingService.CHANNEL_RING, "Ringing alarm",
+            NotificationManager.IMPORTANCE_HIGH
+        )
+        c.setSound(null, null)   // the service plays the looping sound itself
+        c.enableVibration(false)
+        nm.createNotificationChannel(c)
     }
 }
