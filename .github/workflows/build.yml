@@ -38,6 +38,16 @@ jobs:
           git commit -m "build log [skip ci]"
           git push
 
+      - name: Publish APK to repo
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk interval-alarm.apk
+          git config user.name "build-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git pull --rebase
+          git add -f interval-alarm.apk
+          git commit -m "Publish APK [skip ci]"
+          git push
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
