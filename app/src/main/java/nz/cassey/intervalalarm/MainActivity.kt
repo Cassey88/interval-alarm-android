@@ -276,5 +276,18 @@ class MainActivity : AppCompatActivity() {
         c.setSound(null, null)   // the service plays the looping sound itself
         c.enableVibration(false)
         nm.createNotificationChannel(c)
+
+        // fallback channel: rings the system alarm sound if MIUI blocks the service
+        val f = NotificationChannel("fallback", "Alarm (fallback)", NotificationManager.IMPORTANCE_HIGH)
+        f.enableVibration(true)
+        f.vibrationPattern = longArrayOf(0, 600, 300, 600, 300, 600)
+        f.setSound(
+            android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM),
+            android.media.AudioAttributes.Builder()
+                .setUsage(android.media.AudioAttributes.USAGE_ALARM)
+                .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build()
+        )
+        nm.createNotificationChannel(f)
     }
 }
