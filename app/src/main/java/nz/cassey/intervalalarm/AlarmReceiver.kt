@@ -20,20 +20,12 @@ class AlarmReceiver : BroadcastReceiver() {
             .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "intervalalarm:ring")
         wl.acquire(15000)
 
-        val prefs = context.getSharedPreferences("alarms", Context.MODE_PRIVATE)
-
-        // tick this slot off
-        val slots = prefs.getString("slots", "") ?: return
-        val updated = slots.split(",").joinToString(",") { entry ->
-            val minute = entry.substringBefore(":")
-            if (minute.toIntOrNull() == slot) "$minute:done" else entry
-        }
-        prefs.edit().putString("slots", updated).apply()
-
-        // ring: foreground service loops the sound and shows the full-screen SILENCE screen
+        // ring: poke the running foreground service (precision trigger for doze)
         try {
             context.startForegroundService(
-                Intent(context, AlarmRingService::class.java).putExtra("slot", slot)
+                Intent(context, AlarmForegroundService::class.java)
+                    .setAction(AlarmForegroundService.ACTION_RING)
+                    .putExtra("slot", slot)
             )
         } catch (e: Exception) {
             // MIUI blocked the service start — fall back to a loud alarm-sound notification

@@ -28,7 +28,8 @@ class AlarmActivity : Activity() {
 
         findViewById<Button>(R.id.silenceBtn).setOnClickListener {
             startService(
-                Intent(this, AlarmRingService::class.java).setAction(AlarmRingService.ACTION_STOP)
+                Intent(this, AlarmForegroundService::class.java)
+                    .setAction(AlarmForegroundService.ACTION_SILENCE)
             )
             finish()
         }

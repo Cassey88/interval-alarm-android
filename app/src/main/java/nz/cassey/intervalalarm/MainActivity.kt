@@ -241,6 +241,10 @@ class MainActivity : AppCompatActivity() {
             .putBoolean("running", true)
             .apply()
 
+        startForegroundService(
+            Intent(this, AlarmForegroundService::class.java)
+                .setAction(AlarmForegroundService.ACTION_START)
+        )
         updateButtonState()
         refreshList()
         Toast.makeText(this, "$scheduled alarms set — you can close the app", Toast.LENGTH_LONG).show()
@@ -254,6 +258,12 @@ class MainActivity : AppCompatActivity() {
             am.cancel(pendingIntent(minute))
         }
         prefs.edit().putBoolean("running", false).apply()
+        try {
+            startService(
+                Intent(this, AlarmForegroundService::class.java)
+                    .setAction(AlarmForegroundService.ACTION_STOP)
+            )
+        } catch (_: Exception) { }
         updateButtonState()
         refreshList()
     }
@@ -270,7 +280,7 @@ class MainActivity : AppCompatActivity() {
     private fun createChannels() {
         val nm = getSystemService(NotificationManager::class.java)
         val c = NotificationChannel(
-            AlarmRingService.CHANNEL_RING, "Ringing alarm",
+            AlarmForegroundService.CHANNEL_RING, "Ringing alarm",
             NotificationManager.IMPORTANCE_HIGH
         )
         c.setSound(null, null)   // the service plays the looping sound itself
@@ -289,5 +299,12 @@ class MainActivity : AppCompatActivity() {
                 .build()
         )
         nm.createNotificationChannel(f)
+
+        // quiet persistent channel for the "alarms running" sentinel
+        val s = NotificationChannel(
+            AlarmForegroundService.CHANNEL_STATUS, "Alarms running",
+            NotificationManager.IMPORTANCE_LOW
+        )
+        nm.createNotificationChannel(s)
     }
 }

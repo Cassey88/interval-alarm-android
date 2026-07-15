@@ -38,7 +38,7 @@
             android:launchMode="singleInstance" />
 
         <service
-            android:name=".AlarmRingService"
+            android:name=".AlarmForegroundService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
 
