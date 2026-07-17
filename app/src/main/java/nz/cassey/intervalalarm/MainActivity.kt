@@ -166,15 +166,17 @@ class MainActivity : AppCompatActivity() {
         val nowMin = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
 
         var done = 0
+        var total = 0
         var nextMarked = false
-        val rows = slots.split(",").map { entry ->
+        val all = slots.split(",").map { entry ->
             val parts = entry.split(":")
             val minute = parts[0].toInt()
             var state = parts[1]
             if (state == "pending" && nowMin > minute + 3) state = "missed"
             if (state == "done") done++
+            total++
             val label = String.format(Locale.US, "%02d:%02d", minute / 60, minute % 60)
-            when (state) {
+            val row = when (state) {
                 "done" -> Row("✓", label, "rang", getColor(R.color.ms_green), false)
                 "missed" -> Row("–", label, "missed", getColor(R.color.ms_text_secondary), true)
                 else -> {
@@ -184,8 +186,16 @@ class MainActivity : AppCompatActivity() {
                     else Row("○", label, if (running) "" else "not started", getColor(R.color.ms_border), false)
                 }
             }
+            Pair(state, row)
         }
-        titleView.text = "Schedule   —   $done / ${rows.size} rang"
+        // show only the last 2 rang/missed entries plus everything still to come
+        val completedIdx = all.indices.filter { all[it].first != "pending" }
+        val hidden = completedIdx.dropLast(2).toSet()
+        val rows = mutableListOf<Row>()
+        if (hidden.isNotEmpty())
+            rows.add(Row("", "⋯", "${hidden.size} earlier hidden", getColor(R.color.ms_border), false))
+        all.forEachIndexed { i, p -> if (i !in hidden) rows.add(p.second) }
+        titleView.text = "Schedule   —   $done / $total rang"
         listView.adapter = SlotAdapter(rows)
     }
 
