@@ -123,6 +123,21 @@
                 android:paddingStart="12dp" />
         </LinearLayout>
 
+        <EditText
+            android:id="@+id/labelInput"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/btn_outline"
+            android:hint="What's this alarm for? (optional)"
+            android:textColorHint="@color/ms_text_secondary"
+            android:textColor="@color/ms_text"
+            android:textSize="15sp"
+            android:inputType="textCapSentences"
+            android:maxLines="1"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp" />
+
         <Button
             android:id="@+id/startBtn"
             android:layout_width="match_parent"

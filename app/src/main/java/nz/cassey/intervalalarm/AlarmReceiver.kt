@@ -29,7 +29,10 @@ class AlarmReceiver : BroadcastReceiver() {
             )
         } catch (e: Exception) {
             // MIUI blocked the service start — fall back to a loud alarm-sound notification
-            val label = String.format(Locale.US, "%02d:%02d", slot / 60, slot % 60)
+            val time = String.format(Locale.US, "%02d:%02d", slot / 60, slot % 60)
+            val userLabel = context.getSharedPreferences("alarms", Context.MODE_PRIVATE)
+                .getString("label", "")?.trim().orEmpty()
+            val label = if (userLabel.isEmpty()) "Interval alarm — $time" else "$userLabel — $time"
             val fullScreen = PendingIntent.getActivity(
                 context, slot,
                 Intent(context, AlarmActivity::class.java)
@@ -39,7 +42,7 @@ class AlarmReceiver : BroadcastReceiver() {
             )
             val n = Notification.Builder(context, "fallback")
                 .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-                .setContentTitle("Interval alarm — $label")
+                .setContentTitle(label)
                 .setContentText("Tap to open")
                 .setCategory(Notification.CATEGORY_ALARM)
                 .setFullScreenIntent(fullScreen, true)

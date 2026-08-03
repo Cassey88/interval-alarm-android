@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var intervalSpin: Spinner
     private lateinit var soundSpin: Spinner
     private lateinit var startBtn: Button
+    private lateinit var labelInput: android.widget.EditText
     private lateinit var statusText: TextView
     private lateinit var listView: ListView
 
@@ -62,6 +63,7 @@ class MainActivity : AppCompatActivity() {
         intervalSpin = findViewById(R.id.intervalSpin)
         soundSpin = findViewById(R.id.soundSpin)
         startBtn = findViewById(R.id.startBtn)
+        labelInput = findViewById(R.id.labelInput)
         statusText = findViewById(R.id.statusText)
         listView = findViewById(R.id.listView)
 
@@ -88,19 +90,49 @@ class MainActivity : AppCompatActivity() {
         toH = prefs.getInt("toH", 12); toM = prefs.getInt("toM", 0)
         intervalSpin.setSelection(prefs.getInt("intervalIdx", 2))
         soundSpin.setSelection(prefs.getInt("soundIdx", 0))
+        labelInput.setText(prefs.getString("label", ""))
         updateTimeButtons()
 
         fromBtn.setOnClickListener {
-            TimePickerDialog(this, { _, h, m -> fromH = h; fromM = m; updateTimeButtons() }, fromH, fromM, true).show()
+            TimePickerDialog(this, { _, h, m ->
+                fromH = h; fromM = m; updateTimeButtons(); saveSettings()
+            }, fromH, fromM, true).show()
         }
         toBtn.setOnClickListener {
-            TimePickerDialog(this, { _, h, m -> toH = h; toM = m; updateTimeButtons() }, toH, toM, true).show()
+            TimePickerDialog(this, { _, h, m ->
+                toH = h; toM = m; updateTimeButtons(); saveSettings()
+            }, toH, toM, true).show()
         }
         startBtn.setOnClickListener {
             if (prefs.getBoolean("running", false)) stopAlarms() else startAlarms()
         }
 
+        // remember spinner and label changes straight away, even without pressing Start
+        val spinnerSaver = object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p: android.widget.AdapterView<*>?, v: android.view.View?, pos: Int, id: Long) = saveSettings()
+            override fun onNothingSelected(p: android.widget.AdapterView<*>?) {}
+        }
+        intervalSpin.onItemSelectedListener = spinnerSaver
+        soundSpin.onItemSelectedListener = spinnerSaver
+
+        labelInput.addTextChangedListener(object : android.text.TextWatcher {
+            override fun afterTextChanged(s: android.text.Editable?) = saveSettings()
+            override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
+            override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
+        })
+
         updateButtonState()
+    }
+
+    /** Persist the current settings so they're restored on the next launch. */
+    private fun saveSettings() {
+        prefs.edit()
+            .putInt("fromH", fromH).putInt("fromM", fromM)
+            .putInt("toH", toH).putInt("toM", toM)
+            .putInt("intervalIdx", intervalSpin.selectedItemPosition)
+            .putInt("soundIdx", soundSpin.selectedItemPosition)
+            .putString("label", labelInput.text.toString().trim())
+            .apply()
     }
 
     override fun onResume() {
@@ -128,6 +160,7 @@ class MainActivity : AppCompatActivity() {
         toBtn.alpha = if (running) 0.45f else 1f
         intervalSpin.isEnabled = !running
         soundSpin.isEnabled = !running
+        labelInput.isEnabled = !running
         statusText.text = if (running) "Running — alarms fire even with the screen off" else ""
     }
 
@@ -248,6 +281,7 @@ class MainActivity : AppCompatActivity() {
             .putInt("toH", toH).putInt("toM", toM)
             .putInt("intervalIdx", intervalSpin.selectedItemPosition)
             .putInt("soundIdx", soundSpin.selectedItemPosition)
+            .putString("label", labelInput.text.toString().trim())
             .putBoolean("running", true)
             .apply()
 

@@ -26,6 +26,11 @@ class AlarmActivity : Activity() {
         findViewById<TextView>(R.id.alarmTime).text =
             if (slot >= 0) String.format(Locale.US, "%02d:%02d", slot / 60, slot % 60) else "--:--"
 
+        val userLabel = getSharedPreferences("alarms", MODE_PRIVATE)
+            .getString("label", "")?.trim().orEmpty()
+        findViewById<TextView>(R.id.alarmLabel).text =
+            if (userLabel.isEmpty()) "Interval alarm" else userLabel
+
         findViewById<Button>(R.id.silenceBtn).setOnClickListener {
             startService(
                 Intent(this, AlarmForegroundService::class.java)

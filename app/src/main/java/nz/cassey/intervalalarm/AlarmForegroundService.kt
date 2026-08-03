@@ -121,7 +121,10 @@ class AlarmForegroundService : Service() {
 
     private fun ring(slot: Int) {
         markDone(slot)
-        val label = String.format(Locale.US, "%02d:%02d", slot / 60, slot % 60)
+        val time = String.format(Locale.US, "%02d:%02d", slot / 60, slot % 60)
+        val userLabel = prefs().getString("label", "")?.trim().orEmpty()
+        val label = if (userLabel.isEmpty()) "Interval alarm — $time" else "$userLabel — $time"
+
 
         val fullScreen = PendingIntent.getActivity(
             this, slot,
@@ -137,7 +140,7 @@ class AlarmForegroundService : Service() {
         )
         val n = Notification.Builder(this, CHANNEL_RING)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-            .setContentTitle("Interval alarm — $label")
+            .setContentTitle(label)
             .setContentText("Tap Silence to stop")
             .setCategory(Notification.CATEGORY_ALARM)
             .setFullScreenIntent(fullScreen, true)
@@ -208,9 +211,10 @@ class AlarmForegroundService : Service() {
             this, 0, Intent(this, MainActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE
         )
+        val userLabel = prefs().getString("label", "")?.trim().orEmpty()
         return Notification.Builder(this, CHANNEL_STATUS)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-            .setContentTitle("Interval alarms running")
+            .setContentTitle(if (userLabel.isEmpty()) "Interval alarms running" else "$userLabel — alarms running")
             .setContentText(if (next != null) "Next alarm at $next" else "Finishing up…")
             .setContentIntent(open)
             .setOngoing(true)
