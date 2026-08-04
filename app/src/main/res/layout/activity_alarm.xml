@@ -9,38 +9,44 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:orientation="vertical"
-        android:gravity="center">
+        android:gravity="center"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp">
+
+        <!-- what the alarm is for: the headline -->
+        <TextView
+            android:id="@+id/alarmLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Interval alarm"
+            android:textSize="34sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:gravity="center"
+            android:maxLines="3"
+            android:ellipsize="end" />
 
         <TextView
             android:id="@+id/alarmTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="56sp"
+            android:textSize="44sp"
             android:textStyle="bold"
             android:fontFamily="monospace"
             android:textColor="#FFB547"
+            android:paddingTop="6dp"
+            android:paddingBottom="44dp"
             android:text="09:15" />
-
-        <TextView
-            android:id="@+id/alarmLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Interval alarm"
-            android:textSize="20sp"
-            android:textColor="#E8ECF5"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp"
-            android:gravity="center"
-            android:paddingBottom="48dp" />
 
         <Button
             android:id="@+id/silenceBtn"
-            android:layout_width="190dp"
-            android:layout_height="190dp"
+            android:layout_width="210dp"
+            android:layout_height="210dp"
             android:background="@drawable/btn_round"
-            android:text="SILENCE"
+            android:text="STOP\nRINGING"
             android:textColor="#FFFFFF"
             android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:lineSpacingExtra="2dp" />
     </LinearLayout>
 </FrameLayout>
