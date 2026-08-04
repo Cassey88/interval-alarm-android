@@ -67,6 +67,12 @@ class MainActivity : AppCompatActivity() {
         statusText = findViewById(R.id.statusText)
         listView = findViewById(R.id.listView)
 
+        try {
+            val pi = packageManager.getPackageInfo(packageName, 0)
+            findViewById<TextView>(R.id.versionText).text =
+                "Interval Alarm  v${pi.versionName}  (build ${pi.longVersionCode})"
+        } catch (_: Exception) { }
+
         createChannels()
         if (Build.VERSION.SDK_INT >= 33 &&
             checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED

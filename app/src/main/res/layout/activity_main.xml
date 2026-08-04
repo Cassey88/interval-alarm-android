@@ -190,4 +190,14 @@
             android:dividerHeight="1dp" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/versionText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="10dp"
+        android:textSize="11sp"
+        android:textColor="@color/ms_text_secondary"
+        android:text="v" />
+
 </LinearLayout>
