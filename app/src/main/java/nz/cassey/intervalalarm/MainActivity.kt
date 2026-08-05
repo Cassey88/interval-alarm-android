@@ -14,6 +14,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.PowerManager
 import android.os.Looper
 import android.provider.Settings
 import android.widget.ArrayAdapter
@@ -143,6 +144,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        armPendingAlarms()
         handler.post(refresher)
     }
 
@@ -261,13 +263,7 @@ class MainActivity : AppCompatActivity() {
         while (t <= end) {
             val pending = t + 0.5 >= nowMin
             if (pending) {
-                val cal = Calendar.getInstance().apply {
-                    set(Calendar.HOUR_OF_DAY, t / 60)
-                    set(Calendar.MINUTE, t % 60)
-                    set(Calendar.SECOND, 0)
-                    set(Calendar.MILLISECOND, 0)
-                }
-                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.timeInMillis, pendingIntent(t))
+                armSlot(am, t)
                 scheduled++
             }
             if (slots.isNotEmpty()) slots.append(",")
@@ -298,6 +294,32 @@ class MainActivity : AppCompatActivity() {
         updateButtonState()
         refreshList()
         Toast.makeText(this, "$scheduled alarms set — you can close the app", Toast.LENGTH_LONG).show()
+        promptBatteryExemptionOnce()
+    }
+
+    /** One-tap prompt to exempt the app from battery optimisation (big reliability win). */
+    private fun promptBatteryExemptionOnce() {
+        val pm = getSystemService(PowerManager::class.java)
+        if (pm.isIgnoringBatteryOptimizations(packageName)) return
+        if (prefs.getBoolean("batteryPromptShown", false)) return
+        prefs.edit().putBoolean("batteryPromptShown", true).apply()
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Allow unrestricted battery use?")
+            .setMessage("Android may stop the alarms while the phone sleeps. Allowing unrestricted battery use for Interval Alarm makes them reliable.")
+            .setPositiveButton("Allow") { _, _ ->
+                try {
+                    startActivity(
+                        Intent(
+                            Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                            Uri.parse("package:$packageName")
+                        )
+                    )
+                } catch (_: Exception) {
+                    startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+                }
+            }
+            .setNegativeButton("Not now", null)
+            .show()
     }
 
     private fun stopAlarms() {
@@ -316,6 +338,50 @@ class MainActivity : AppCompatActivity() {
         } catch (_: Exception) { }
         updateButtonState()
         refreshList()
+    }
+
+    /**
+     * Schedule one slot with setAlarmClock() — the same API the system Clock app uses.
+     * Unlike setExactAndAllowWhileIdle it is NOT throttled in Doze, and Android treats it
+     * as a user-visible alarm, so aggressive OEM battery managers leave it alone.
+     */
+    private fun armSlot(am: AlarmManager, minuteOfDay: Int) {
+        val cal = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, minuteOfDay / 60)
+            set(Calendar.MINUTE, minuteOfDay % 60)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val show = PendingIntent.getActivity(
+            this, 9000, Intent(this, MainActivity::class.java),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        am.setAlarmClock(
+            AlarmManager.AlarmClockInfo(cal.timeInMillis, show),
+            pendingIntent(minuteOfDay)
+        )
+    }
+
+    /** Re-arm every still-pending slot. Heals a session after the OS kills the app. */
+    private fun armPendingAlarms() {
+        if (!prefs.getBoolean("running", false)) return
+        val am = getSystemService(AlarmManager::class.java)
+        if (Build.VERSION.SDK_INT >= 31 && !am.canScheduleExactAlarms()) return
+        val slots = prefs.getString("slots", "") ?: return
+        val now = Calendar.getInstance()
+        val nowMin = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
+        for (entry in slots.split(",")) {
+            val parts = entry.split(":")
+            val minute = parts[0].toIntOrNull() ?: continue
+            if (parts.getOrNull(1) == "pending" && minute > nowMin) armSlot(am, minute)
+        }
+        // make sure the keep-alive service is up too
+        try {
+            startForegroundService(
+                Intent(this, AlarmForegroundService::class.java)
+                    .setAction(AlarmForegroundService.ACTION_START)
+            )
+        } catch (_: Exception) { }
     }
 
     private fun pendingIntent(minuteOfDay: Int): PendingIntent {
