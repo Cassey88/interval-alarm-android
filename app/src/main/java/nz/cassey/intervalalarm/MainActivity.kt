@@ -294,7 +294,54 @@ class MainActivity : AppCompatActivity() {
         updateButtonState()
         refreshList()
         Toast.makeText(this, "$scheduled alarms set — you can close the app", Toast.LENGTH_LONG).show()
+        promptRingScreenPermissions()
         promptBatteryExemptionOnce()
+    }
+
+    /**
+     * The ring screen can only pop up by itself if the app is allowed to display over other
+     * apps (background activity-start exemption) and, on Android 14+, to use full-screen intents.
+     */
+    private fun promptRingScreenPermissions() {
+        // Android 14+: full-screen intent permission is no longer granted automatically
+        if (Build.VERSION.SDK_INT >= 34) {
+            val nm = getSystemService(NotificationManager::class.java)
+            if (!nm.canUseFullScreenIntent()) {
+                android.app.AlertDialog.Builder(this)
+                    .setTitle("Allow full-screen alarms?")
+                    .setMessage("Without this, alarms can only appear as a notification you have to tap.")
+                    .setPositiveButton("Open settings") { _, _ ->
+                        try {
+                            startActivity(
+                                Intent(
+                                    Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT,
+                                    Uri.parse("package:$packageName")
+                                )
+                            )
+                        } catch (_: Exception) { }
+                    }
+                    .setNegativeButton("Not now", null)
+                    .show()
+                return
+            }
+        }
+        if (!Settings.canDrawOverlays(this)) {
+            android.app.AlertDialog.Builder(this)
+                .setTitle("Show the alarm screen automatically?")
+                .setMessage("Allow \"Display over other apps\" so the STOP RINGING screen opens by itself instead of you tapping the notification.")
+                .setPositiveButton("Open settings") { _, _ ->
+                    try {
+                        startActivity(
+                            Intent(
+                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                Uri.parse("package:$packageName")
+                            )
+                        )
+                    } catch (_: Exception) { }
+                }
+                .setNegativeButton("Not now", null)
+                .show()
+        }
     }
 
     /** One-tap prompt to exempt the app from battery optimisation (big reliability win). */

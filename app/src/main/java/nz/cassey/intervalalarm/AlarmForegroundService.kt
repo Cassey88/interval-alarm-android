@@ -175,6 +175,20 @@ class AlarmForegroundService : Service() {
         vibrator = getSystemService(Vibrator::class.java)
         vibrator?.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 600, 400), 0))
 
+        // Open the STOP RINGING screen straight away. Allowed from the background when the
+        // app has "Display over other apps"; the full-screen intent above is the fallback.
+        try {
+            startActivity(
+                Intent(this, AlarmActivity::class.java)
+                    .putExtra("slot", slot)
+                    .addFlags(
+                        Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                        Intent.FLAG_ACTIVITY_NO_USER_ACTION
+                    )
+            )
+        } catch (_: Exception) { }
+
         handler.removeCallbacks(autoSilence)
         handler.postDelayed(autoSilence, 60000)
     }
